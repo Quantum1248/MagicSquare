@@ -1,5 +1,5 @@
 #include <iostream>
-#include "utils.cpp"
+#include "../include/utils.h"
 
 int main(int argc, char **argv)
 {
@@ -17,6 +17,6 @@ int main(int argc, char **argv)
 	}
 	else
 	{
-		memoizedSearch();
+		memoizedSearch(1,10000);
 	}
 }
