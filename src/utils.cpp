@@ -78,7 +78,7 @@ void OddFirmScm(mpz_class n1, mpz_class n2, mpz_class n3, mpz_class& res)
 
 void FMK(mpz_class k, std::vector<mpz_class> &res, std::vector<uint64_t> &exp)
 {
-    mpz_class i=1;
+    mpz_class i=2;
     while (k >= i)
     {
         if (mpz_divisible_p(k.get_mpz_t(), i.get_mpz_t()) != 0)
@@ -139,15 +139,15 @@ void NormalizePrimeFactorList(std::vector<mpz_class> &res, std::vector<uint64_t>
         }
     }
 
-    size_t i = 2;
-    while (res[1] != 2)
+    size_t i = 1;
+    while (res[0] != 2)
     {
         if(res[i]==2)
         {
-            mpz_class rtmp = res[1];
-            uint64_t etmp = exp[1];
-            res[1] = res[i];
-            exp[1] = exp[i];
+            mpz_class rtmp = res[0];
+            uint64_t etmp = exp[0];
+            res[0] = res[i];
+            exp[0] = exp[i];
             res[i] = rtmp;
             exp[i] = etmp;
         }
@@ -155,24 +155,19 @@ void NormalizePrimeFactorList(std::vector<mpz_class> &res, std::vector<uint64_t>
     }
 }
 
-void FindAllDivisor(std::vector<mpz_class> &factors, std::vector<uint64_t> &exp,mpz_class n, std::vector<mpz_class> &divisors)
+void FindAllDivisors(std::vector<mpz_class> &factors, std::vector<uint64_t> &exp, mpz_class n, std::vector<mpz_class> &divisors)
 {
     std::vector<uint64_t> weight;
+    size_t n_div = 1;
     for (size_t i = 0; i < exp.size();i++)
     {
         weight.push_back(0);
+        n_div *= exp[i] + 1;
     }
+    divisors.reserve(n_div);
+
     mpz_class div = 1;
     divisors.push_back(div);
-    size_t n_div = 1;
-    for (size_t i = 0; i < exp.size(); i++)
-    {
-        n_div *= exp[i]+1;
-    }
-    n_div /= 2;
-
-    divisors.reserve(n_div);
-    weight[0] = 1;
 
     mpz_class test = n;
     for (size_t i = 0; i < factors.size(); i++)
@@ -181,13 +176,13 @@ void FindAllDivisor(std::vector<mpz_class> &factors, std::vector<uint64_t> &exp,
         mpz_pow_ui(tmp.get_mpz_t(), factors[i].get_mpz_t(), exp[i]);
         test /= tmp;
     }
-    if(test!=1)
+    if (test != 1)
         std::cout << "error" << std::endl;
+
     while (div < n)
     {
-        int i = 0;
-        weight[1]++;
-        for (size_t i = 1; weight[i] > exp[i];)
+        weight[0]++;
+        for (size_t i = 0; weight[i] > exp[i];)
         {
             weight[i] = 0;
             i++;
@@ -204,31 +199,61 @@ void FindAllDivisor(std::vector<mpz_class> &factors, std::vector<uint64_t> &exp,
         divisors.push_back(div);
     }
     std::sort(divisors.begin(), divisors.end());
-
-    std::cout << divisors.size() << ";"<<n_div<< std::endl;
-
 }
 
 void FactorizeMemoized(mpz_class key_odd, mpz_class key_even, std::vector<mpz_class> &res, std::vector<uint64_t> &exp)
 {
-    mpz_class n = key_odd * key_even;
-    FMK(key_odd, res, exp);     //fattorizza la chiave
 
+    FMK(key_odd, res, exp);     //fattorizza la chiave
     size_t nIndex = res.size(); //indice al quale inizieranno i fattori di n
     FMN(key_even, res, exp);    //fattorizza il coefficiente quadratico
-    std::cout << std::endl;
-    std::cout << key_odd << ";" << key_even << ";" << n << std::endl;
 
     NormalizePrimeFactorList(res, exp, nIndex);
-    std::vector<mpz_class> divisors;
-    FindAllDivisor(res, exp, n, divisors);
 }
 
-void memoizedCenter(mpz_class key, mpz_class sqrFactor)
+void FilterDivisors(mpz_class& n, std::vector<mpz_class>& div)
+{
+    mpz_class root=sqrt(n);
+    for (size_t i = 0; i < div.size(); i++)
+    {
+        if(div[i]>root)
+            div.resize(i);
+        else
+            div[i] *= 2;
+    }
+    n *= 4;
+}
+    void memoizedCenter(mpz_class key_odd, mpz_class key_even)
 {
     std::vector<mpz_class> factors;
     std::vector<uint64_t> exp;
-    FactorizeMemoized(key, sqrFactor, factors, exp);
+    FactorizeMemoized(key_odd, key_even, factors, exp);
+    std::vector<mpz_class> divisors;
+    mpz_class n = key_odd * key_even;
+    FindAllDivisors(factors, exp, n, divisors);
+    size_t old_div_size= divisors.size();
+    FilterDivisors(n, divisors);
+    std::cout << "n: " << n << " with " << old_div_size << " divisors of which "<< divisors.size() << " considered." << std::endl;
+    int c = 0;
+    for (size_t b = 0; b < divisors.size(); b++)
+    {
+        for (size_t a = b + 1; a < divisors.size();a++)
+        {
+            if (((n / divisors[b]) - (n / divisors[a])) == (divisors[a] + divisors[b]))
+            {
+                if(n/divisors[a]>=divisors[a])
+                {
+                    std::cout << "a: " << divisors[a] << "; b: " << divisors[b] << std::endl;
+                    c++;
+                }
+            }
+        }
+    }
+    if(c>3)
+    {
+        std::cout << "";
+    }
+    std::cout << std::endl;
 }
 
 void memoizedSearch(uint64_t min, uint64_t max)
@@ -279,8 +304,15 @@ void memoizedSearch(uint64_t min, uint64_t max)
     std::cout << "m.size() is " << m.size() << std::endl;
     //TODO:bisognerebbe pulire le entry e chiavi della mappa
 
+    mpz_class maxx;
+    maxx = 1;
     for (auto i = m.begin(); i != m.end(); ++i)
     {
+        if(i->second>maxx)
+        {
+            maxx = (i->second);
+        }
         memoizedCenter(i->first, i->second);
     }
+    std::cout << maxx << std::endl;
 }
