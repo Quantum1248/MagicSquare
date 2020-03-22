@@ -113,10 +113,9 @@ void FMN(mpz_class n, std::vector<mpz_class> &res, std::vector<uint64_t> &exp)
         }
     }
 }
-
 void NormalizePrimeFactorList(std::vector<mpz_class> &res, std::vector<uint64_t> &exp, size_t nIndex)
 {
-    int ik = nIndex-1;      // se si mette size_t poi fa in overflow negativo nel ciclo sotto
+    int ik = nIndex - 1; // se si mette size_t poi fa in overflow negativo nel ciclo sotto
     size_t in = res.size()-1;
 
     while (ik>=0 && in >= nIndex)
@@ -136,6 +135,7 @@ void NormalizePrimeFactorList(std::vector<mpz_class> &res, std::vector<uint64_t>
             exp[in] = exp[exp.size() - 1];
             res.resize(res.size() - 1);
             exp.resize(exp.size() - 1);
+            in--;
         }
     }
 
@@ -169,16 +169,6 @@ void FindAllDivisors(std::vector<mpz_class> &factors, std::vector<uint64_t> &exp
     mpz_class div = 1;
     divisors.push_back(div);
 
-    mpz_class test = n;
-    for (size_t i = 0; i < factors.size(); i++)
-    {
-        mpz_class tmp;
-        mpz_pow_ui(tmp.get_mpz_t(), factors[i].get_mpz_t(), exp[i]);
-        test /= tmp;
-    }
-    if (test != 1)
-        std::cout << "error" << std::endl;
-
     while (div < n)
     {
         weight[0]++;
@@ -195,7 +185,6 @@ void FindAllDivisors(std::vector<mpz_class> &factors, std::vector<uint64_t> &exp
             mpz_pow_ui(tmp.get_mpz_t(), factors[i].get_mpz_t(), weight[i]);
             div *= tmp;
         }
-
         divisors.push_back(div);
     }
     std::sort(divisors.begin(), divisors.end());
@@ -203,7 +192,6 @@ void FindAllDivisors(std::vector<mpz_class> &factors, std::vector<uint64_t> &exp
 
 void FactorizeMemoized(mpz_class key_odd, mpz_class key_even, std::vector<mpz_class> &res, std::vector<uint64_t> &exp)
 {
-
     FMK(key_odd, res, exp);     //fattorizza la chiave
     size_t nIndex = res.size(); //indice al quale inizieranno i fattori di n
     FMN(key_even, res, exp);    //fattorizza il coefficiente quadratico
@@ -218,101 +206,226 @@ void FilterDivisors(mpz_class& n, std::vector<mpz_class>& div)
     {
         if(div[i]>root)
             div.resize(i);
-        else
-            div[i] *= 2;
     }
-    n *= 4;
 }
-    void memoizedCenter(mpz_class key_odd, mpz_class key_even)
+
+void memoizedCenter(mpz_class key_odd, mpz_class key_even, std::vector<mpz_class> &centers)
 {
+    mpz_class n = key_odd * key_even;
     std::vector<mpz_class> factors;
     std::vector<uint64_t> exp;
+
     FactorizeMemoized(key_odd, key_even, factors, exp);
+
+
     std::vector<mpz_class> divisors;
-    mpz_class n = key_odd * key_even;
+
     FindAllDivisors(factors, exp, n, divisors);
-    size_t old_div_size= divisors.size();
-    FilterDivisors(n, divisors);
-    std::cout << "n: " << n << " with " << old_div_size << " divisors of which "<< divisors.size() << " considered." << std::endl;
-    int c = 0;
-    for (size_t b = 0; b < divisors.size(); b++)
+    //std::vector<mpz_class> v = {1, 2, 3, 4, 6, 7, 8, 12, 14, 16, 21, 24, 28, 32, 42, 48, 56, 64, 67, 84, 96, 112, 128, 134, 168, 192, 201, 224, 268, 336, 384, 402, 448, 469, 536, 672, 804, 896, 938, 1072, 1344, 1407, 1608, 1876, 2144, 2688, 2814, 3216, 3752, 4288, 5628, 6432, 7504, 8576, 11256, 12864, 15008, 22512, 25728, 30016, 45024, 60032, 90048, 180096};
+    //for (size_t i = 0; i < v.size(); i++)
+    //{
+//  if(v[i]!=divisors[i] || v.size()!=divisors.size())
+    //        std::cout << "stop" << std::endl;
+    //}
+
+    //PrintArr(divisors);
+    size_t old_div_size = divisors.size();
+    /*n *= 4;
+    for (size_t i = 0; i < divisors.size(); i++)
     {
-        for (size_t a = b + 1; a < divisors.size();a++)
+        divisors[i] *= 2;
+    }*/
+
+    FilterDivisors(n, divisors);
+    int c = 0;
+    for (auto a = divisors.begin(); a != divisors.end(); ++a)
+    {
+        mpz_class det = n * n + 6 * n * (*a) * (*a) + (*a) * (*a) * (*a) * (*a); //n^2+6na^2+a^4
+        if (mpz_perfect_square_p(det.get_mpz_t()))
         {
-            if (((n / divisors[b]) - (n / divisors[a])) == (divisors[a] + divisors[b]))
+            det = sqrt(det);
+            det = n + (*a) * (*a) - det;
+            if (det % (2 * (*a)) == 0)
             {
-                if(n/divisors[a]>=divisors[a])
+                det /= -2 * (*a);
+                for (auto b = divisors.begin(); b != a && (*b) <= det; ++b)
                 {
-                    std::cout << "a: " << divisors[a] << "; b: " << divisors[b] << std::endl;
-                    c++;
+                    if ((*b) == det)
+                    {
+                        centers.push_back(*a);
+                        centers.push_back(*b);
+                        c++;
+                    }
                 }
             }
         }
     }
-    if(c>3)
+}
+
+void reverseCenter(std::vector<mpz_class>& c)
+{
+    mpz_class tmp;
+    for (size_t i = 0; i < c.size()/2; i++)
     {
-        std::cout << "";
+        tmp = c[i];
+        c[i] = c[c.size() - 1 - i];
+        c[c.size() - 1 - i] = tmp;
     }
-    std::cout << std::endl;
+    for (size_t i = 0; i < c.size(); i+=2)
+    {
+        tmp = c[i];
+        c[i] = c[i + 1];
+        c[i + 1] = tmp;
+    }
+}
+
+int cmax = 0;
+int check(mpz_class D, mpz_class e, mpz_class c)
+{
+    mpz_class A = e + c + D;
+    mpz_class B = 2 * e - 2 * c + D;
+    mpz_class C = c + D;
+    mpz_class E = e + D;
+    mpz_class F = 2 * e + D;
+    mpz_class G = 2 * e - c + D;
+    mpz_class H = 2 * c + D;
+    mpz_class I = e - c + D;
+
+    int counter = 0;
+    if (mpz_perfect_square_p(A.get_mpz_t()))
+    {
+        counter++;
+    }
+    if (mpz_perfect_square_p(B.get_mpz_t()))
+    {
+        counter++;
+    }
+    if (mpz_perfect_square_p(C.get_mpz_t()))
+    {
+        counter++;
+    }
+    if (mpz_perfect_square_p(D.get_mpz_t()))
+    {
+        counter++;
+    }
+    if (mpz_perfect_square_p(E.get_mpz_t()))
+    {
+        counter++;
+    }
+    if (mpz_perfect_square_p(F.get_mpz_t()))
+    {
+        counter++;
+    }
+    if (mpz_perfect_square_p(G.get_mpz_t()))
+    {
+        counter++;
+    }
+    if (mpz_perfect_square_p(H.get_mpz_t()))
+    {
+        counter++;
+    }
+    if (mpz_perfect_square_p(I.get_mpz_t()))
+    {
+        counter++;
+    }
+
+    if(counter>cmax)
+        cmax = counter;
+    if (counter > 6)
+    {
+        std::cout << counter << std::endl;
+        std::cout << "A= " << A << std::endl;
+        std::cout << "B= " << B << std::endl;
+        std::cout << "C= " << C << std::endl;
+        std::cout << "D= " << D << std::endl;
+        std::cout << "E= " << E << std::endl;
+        std::cout << "F= " << F << std::endl;
+        std::cout << "G= " << G << std::endl;
+        std::cout << "H= " << H << std::endl;
+        std::cout << "I= " << I << std::endl;
+        mpz_class key = 3 * E;
+        if(A+B+C!=key)
+            std::cout << "error" << std::endl;
+    }
+
+    return counter;
 }
 
 void memoizedSearch(uint64_t min, uint64_t max)
 {
+    int percentage;
+    percentage = -1;
+
     std::map<mpz_class, mpz_class> m;
-
     mpz_class a=0, b=0, apb=0, amb=0, n=0, oddKey=0;
-
+    uint64_t counter = 0;
+    std::cout << "Generazione numeri:" << std::endl;
     for (uint64_t i = min; i < max; i++)
     {
         CopPair(i / 2, i % 2 == 0, a, b);
         apb = a + b;
         amb = a - b;
         n = a * b * apb * amb;
-        
-        if(n==100800)
-            std::cout << "stop" << std::endl;
+
         OddFirmScm(a, b, apb * amb, oddKey);
 
-        std::cout << "a: " << a << ";  b: " << b << std::endl;
-        std::cout << "n: " << n << ";  oddKey: " << oddKey << std::endl;
-
-        if (mpz_divisible_p(n.get_mpz_t(), oddKey.get_mpz_t()) != 0)
+        //std::cout << "a: " << a << ";  b: " << b << std::endl;
+        //std::cout << "n: " << n << ";  oddKey: " << oddKey << std::endl;
+        mpz_divexact(n.get_mpz_t(), n.get_mpz_t(), oddKey.get_mpz_t());
+        if (m.find(oddKey) == m.end())
         {
-            mpz_divexact(n.get_mpz_t(), n.get_mpz_t(), oddKey.get_mpz_t());
-            if (mpz_perfect_square_p(n.get_mpz_t()))
-            {
-                if (m.find(oddKey) == m.end())
-                {
-                    m[oddKey]= n;
-                }
-                else
-                {
-                    m[oddKey]*= n;
-                }
-                std::cout << "Giusto " << i<<std::endl;
-            }
-            else
-            {
-                std::cout << "SBAGLIATO" << std::endl;
-            }
+            counter++;
+            m[oddKey] = n;
         }
         else
         {
-            std::cout << "SBAGLIATO" << std::endl;
+            mpz_class g = gcd(m[oddKey],n);
+            n /= g;
+            m[oddKey] *= n;
+        }
+
+        if(int((i*100)/max)>percentage)
+        {
+            percentage = (int)((i * 100) / max);
+            std::cout << percentage << "%" << std::endl;
         }
     }
     std::cout << "m.size() is " << m.size() << std::endl;
-    //TODO:bisognerebbe pulire le entry e chiavi della mappa
 
-    mpz_class maxx;
-    maxx = 1;
+    std::cout << "Ricerca quadrati con " << counter << " numeri:" << std::endl;
+    uint64_t checkCounter = 0;
+    percentage = -1;
     for (auto i = m.begin(); i != m.end(); ++i)
     {
-        if(i->second>maxx)
+        std::vector<mpz_class> cent;
+        memoizedCenter(i->first, i->second, cent);
+        reverseCenter(cent);
+        mpz_class c = i->first * i->second;
+        for (auto it1 = cent.begin(); it1 != cent.end(); it1 += 2)
         {
-            maxx = (i->second);
+            mpz_class in = c / (*it1);
+            in -= (*it1);
+            in += 1;
+            for (auto it2 = it1 + 2; it2 != cent.end(); it2 += 2)
+            {
+                mpz_class fn = c / (*it2);
+                fn += (*it2);
+                fn -= 1;
+
+                mpz_class D = ((in-2) +1) * ((in-2) - 1 + 2); //(in-2+1)*(in-2-1+2)
+                D /= 4;
+                mpz_class e = (fn + in) * (fn - in + 2);
+                e /= 4;
+                check(D, e, c);
+            }
         }
-        memoizedCenter(i->first, i->second);
+
+        checkCounter++;
+        if ((int)((checkCounter * 100) / counter) > percentage)
+        {
+            percentage = (int)((checkCounter*100)/counter);
+            std::cout << percentage << "%" << std::endl;
+        }
     }
-    std::cout << maxx << std::endl;
+    std::cout << "fine" << std::endl;
 }

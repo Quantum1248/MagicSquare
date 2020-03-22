@@ -11,12 +11,13 @@ int main(int argc, char **argv)
 		std::cout << "Argument " << i - 1 << ": " << argv[i] << std::endl;
 	}
 	std::cout << argv[0] << std::endl;
+
 	if (argc > 1)
 	{
 		memoizedSearch(strtol(argv[1], nullptr, 10), strtol(argv[2], nullptr, 10));
 	}
 	else
 	{
-		memoizedSearch(1,10000);
+		memoizedSearch(1,10000000);
 	}
 }
