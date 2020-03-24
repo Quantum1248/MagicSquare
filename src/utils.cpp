@@ -351,7 +351,7 @@ int check(mpz_class D, mpz_class e, mpz_class c)
     return counter;
 }
 
-void memoizedSearch(uint64_t min, uint64_t max)
+void memoizedSearch(uint64_t min, uint64_t max, int thNumber)
 {
     int percentage;
     percentage = -1;
@@ -359,7 +359,6 @@ void memoizedSearch(uint64_t min, uint64_t max)
     std::map<mpz_class, mpz_class> m;
     mpz_class a=0, b=0, apb=0, amb=0, n=0, oddKey=0;
     uint64_t counter = 0;
-    std::cout << "Generazione numeri:" << std::endl;
     for (uint64_t i = min; i < max; i++)
     {
         CopPair(i / 2, i % 2 == 0, a, b);
@@ -384,15 +383,25 @@ void memoizedSearch(uint64_t min, uint64_t max)
             m[oddKey] *= n;
         }
 
-        if(int((i*100)/max)>percentage)
+        if(int(((i-min)*100)/(max-min))>percentage)
         {
-            percentage = (int)((i * 100) / max);
-            std::cout << percentage << "%" << std::endl;
+            percentage = (int)(((i-min)*100)/(max-min));
+            std::cout << "Thread "<<thNumber<<" at: " << percentage << "%"<<std::endl;
         }
     }
-    std::cout << "m.size() is " << m.size() << std::endl;
+    std::cout << "Thread " << thNumber << " at: 100%" << std::endl;
 
-    std::cout << "Ricerca quadrati con " << counter << " numeri:" << std::endl;
+    std::cout << "Thread " << thNumber << " is saving the file..." << std::endl;
+    std::ofstream f;
+    f.open(std::to_string(min) + "-" + std::to_string(max) + ".txt", std::ios::trunc);
+    for (auto i = m.begin(); i != m.end(); ++i)
+    {
+        f << i->first<<" "<<i->second<<std::endl;
+    }
+    f.close();
+
+    std::cout << "Thread " << thNumber << " has finished!" << std::endl;
+    /*std::cout << "Ricerca quadrati con " << counter << " numeri:" << std::endl;
     uint64_t checkCounter = 0;
     percentage = -1;
     for (auto i = m.begin(); i != m.end(); ++i)
@@ -426,6 +435,5 @@ void memoizedSearch(uint64_t min, uint64_t max)
             percentage = (int)((checkCounter*100)/counter);
             std::cout << percentage << "%" << std::endl;
         }
-    }
-    std::cout << "fine" << std::endl;
+    }*/
 }

@@ -1,4 +1,5 @@
 #include <iostream>
+#include <fstream>
 #include <map>
 #include <gmp.h>
 #include <gmpxx.h>
@@ -27,4 +28,4 @@ void reverseCenter(std::vector<mpz_class> &c);
 
 int check(mpz_class D, mpz_class e, mpz_class c);
 
-void memoizedSearch(uint64_t min = 0, uint64_t max = 1000);
+void memoizedSearch(uint64_t min = 0, uint64_t max = 1000, int thNumber=0);
