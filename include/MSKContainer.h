@@ -19,9 +19,7 @@ class MSKContainer
         const mpz_class &Get(mpz_class oddKey) const;
 
         void Save(std::string path) const;
-        void Load(std::string path);
-        
-
+        void Load(std::vector<std::string> path);
 
     private:
         class Info
