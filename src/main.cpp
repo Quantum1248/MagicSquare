@@ -17,7 +17,7 @@ int main(int argc, char **argv)
 		std::cout << "Argument " << i - 1 << ": " << argv[i] << std::endl;
 	}
 	auto t1 = Clock::now();
-
+	
 	if (argc > 1)
 	{
 		int threadToSpawn = strtol(argv[1], nullptr, 10);
@@ -59,7 +59,7 @@ int main(int argc, char **argv)
 		std::vector<std::string> paths;
 		paths.push_back("0-1000.txt");
 		c.Load(paths);
-		c.Save(false);
+		c.Save();
 	}
 	auto t2 = Clock::now();
 	std::cout << "Delta t2-t1: "
