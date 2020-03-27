@@ -103,7 +103,7 @@ void MSKContainer::Load(std::vector<std::string> paths, bool clean)
         }
         file.close();
         if(clean)
-            std::remove(paths[p].c_str);
+            std::remove(paths[p].c_str());
     }
     
     
