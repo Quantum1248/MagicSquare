@@ -17,11 +17,14 @@ void MemoizedSearch(uint64_t min, uint64_t max, int thNumber)
         apb = a + b;
         amb = a - b;
         n = a * b * apb * amb;
-        FindOddFirmTris(a, b, apb, amb, oddKey);
+        //n/a maggiore uguale ad a
+        if (b * apb >= a * amb)
+        {
+            FindOddFirmTris(a, b, apb, amb, oddKey);
 
-        mpz_divexact(evenKey.get_mpz_t(), n.get_mpz_t(), oddKey.get_mpz_t());
-        container.Insert(oddKey, evenKey, a*amb, b*amb);
-
+            mpz_divexact(evenKey.get_mpz_t(), n.get_mpz_t(), oddKey.get_mpz_t());
+            container.Insert(oddKey, evenKey, a*amb, b*amb);
+        }
         if (int(((i - min) * 100) / (max - min)) > percentage)
         {
             percentage = (int)(((i - min) * 100) / (max - min));

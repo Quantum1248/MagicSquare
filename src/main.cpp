@@ -16,7 +16,9 @@ int main(int argc, char **argv)
 	{
 		std::cout << "Argument " << i - 1 << ": " << argv[i] << std::endl;
 	}
-	
+	auto t1 = Clock::now();
+	double duration;
+
 	if (argc > 1)
 	{
 		int threadToSpawn = strtol(argv[1], nullptr, 10);
@@ -31,9 +33,7 @@ int main(int argc, char **argv)
 
 		std::vector<std::thread> threads;
 
-		auto t1=Clock::now();
-		double duration;
-
+		
 		threads.push_back(std::thread(MemoizedSearch, init, init + module + remainder, 0));
 		init+=module+remainder;
 		for (int i =1 ; i < threadToSpawn; i++)
@@ -47,18 +47,17 @@ int main(int argc, char **argv)
 			threads[i].join();
 		}
 		std::cout << "All " << threadToSpawn << " threads have finished."<<std::endl;
-
-		auto t2 = Clock::now();
-		std::cout << "Delta t2-t1: "
-				<< std::chrono::duration_cast<std::chrono::nanoseconds>(t2 - t1).count()/1000000000
-				<< " seconds" << std::endl;
 	}
 	else
 	{
-		MemoizedSearch(0, 1000, 0);
-		MSKContainer c;
+		MemoizedSearch(0, 1000000, 0);
+		/*MSKContainer c;
 		std::vector<std::string> paths;
 		paths.push_back("0-1000.txt");
-		c.Load(paths);
+		c.Load(paths);*/
 	}
+	auto t2 = Clock::now();
+	std::cout << "Delta t2-t1: "
+			  << std::chrono::duration_cast<std::chrono::nanoseconds>(t2 - t1).count() / 1000000000
+			  << " seconds" << std::endl;
 }
