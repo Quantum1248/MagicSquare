@@ -70,13 +70,22 @@ void FindOddFirm(mpz_class &res)
     }
 }
 
-//n1,n2,n3 devono(e sono nel mio caso) essere coprimi
-void FindOddFirmTris(mpz_class n1, mpz_class n2, mpz_class n3, mpz_class& res)
+//n1,n2,n3,n4 devono(e sono nel mio caso) essere coprimi, a meno di n3 e n4 che possono avere solo 2 in comune
+void FindOddFirmTris(mpz_class n1, mpz_class n2, mpz_class n3, mpz_class n4, mpz_class &res)
 {
     FindOddFirm(n1);
     FindOddFirm(n2);
+    if(n3%2==0 && n4%2==0 )
+    {
+        n3 /= 2;
+        n4 /= 2;
+    }
+    mpz_class g = gcd(n3, n4);
+    if(g!=1)
+        g = g;
     FindOddFirm(n3);
-    res = n1 * n2 * n3;
+    FindOddFirm(n4);
+    res = n1 * n2 * n3 * n4;
 }
 
 void FMK(mpz_class k, std::vector<mpz_class> &res, std::vector<uint64_t> &exp)

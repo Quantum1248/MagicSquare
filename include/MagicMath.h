@@ -11,7 +11,7 @@ void CoprimePair(uint64_t i, mpz_class &m, mpz_class &n);
 
 void FindOddFirm(mpz_class &res);
 
-void FindOddFirmTris(mpz_class n1, mpz_class n2, mpz_class n3, mpz_class &res);
+void FindOddFirmTris(mpz_class n1, mpz_class n2, mpz_class n3, mpz_class n4, mpz_class &res);
 
 //void FMK(mpz_class k, std::vector<mpz_class> &res, std::vector<uint64_t> &exp);
 
