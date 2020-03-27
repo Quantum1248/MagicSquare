@@ -7,9 +7,8 @@ void MemoizedSearch(uint64_t min, uint64_t max, int thNumber)
     std::cout << "Thread " << thNumber << " has started with min="<<min<<" and max="<<max << std::endl;
     int percentage;
     percentage = -1;
-
-    std::map<mpz_class, mpz_class> m;
-    MSKContainer container;
+    
+    MSKContainer container(min,max);
     mpz_class a = 0, b = 0, apb = 0, amb = 0, n = 0, oddKey = 0, evenKey = 0;
     for (uint64_t i = min; i < max; i++)
     {
@@ -34,7 +33,7 @@ void MemoizedSearch(uint64_t min, uint64_t max, int thNumber)
     std::cout << "Thread " << thNumber << " at: 100%" << std::endl;
 
     std::cout << "Thread " << thNumber << " is saving the file..." << std::endl;
-    container.Save(std::to_string(min) + "-" + std::to_string(max) + ".txt");
+    container.Save();
 
     std::cout<< "Thread " << thNumber << " has finished!" << std::endl;
     /*

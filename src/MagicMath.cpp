@@ -241,7 +241,6 @@ void memoizedCenter(mpz_class key_odd, mpz_class key_even, std::vector<mpz_class
     //}
 
     //PrintArr(divisors);
-    size_t old_div_size = divisors.size();
     /*n *= 4;
     for (size_t i = 0; i < divisors.size(); i++)
     {

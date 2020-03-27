@@ -10,7 +10,7 @@
 class MSKContainer
 {
     public:
-        MSKContainer();
+        MSKContainer(uint64_t min=0, uint64_t max=0);
         ~MSKContainer();
 
         void Insert(const mpz_class &oddKey, const mpz_class &evenKey, const mpz_class &a, const mpz_class &b);
@@ -18,7 +18,7 @@ class MSKContainer
 
         const mpz_class &Get(mpz_class oddKey) const;
 
-        void Save(std::string path) const;
+        void Save(bool all=true) const;
         void Load(std::vector<std::string> path);
 
     private:
@@ -31,6 +31,7 @@ class MSKContainer
             mpz_class b;
         };
         std::map<mpz_class, std::vector<Info *>> m;
+        uint64_t min, max;
 };
-        
+
 #endif

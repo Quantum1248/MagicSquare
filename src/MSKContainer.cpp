@@ -1,12 +1,12 @@
 #include "../include/MSKContainer.h"
 
-MSKContainer::MSKContainer()
+MSKContainer::MSKContainer(uint64_t min, uint64_t max):min(min),max(max)
 {
 }
 
 MSKContainer::~MSKContainer()
 {
-    for (auto i = m.begin(); i !=m.end(); i++)
+    for (auto i = m.begin(); i != m.end(); i++)
     {
         for (size_t j = 0; j < i->second.size(); j++)
         {
@@ -20,38 +20,62 @@ void MSKContainer::Insert(const mpz_class &oddKey, const mpz_class &evenKey, con
     m[oddKey].push_back(new Info(evenKey, a, b));
 }
 
-void MSKContainer::Save(std::string path) const
+void MSKContainer::Save(bool all) const
 {
     std::ofstream f;
-    f.open(path, std::ios::trunc);
+    f.open(std::to_string(min) + "-" + std::to_string(max) + ".txt", std::ios::trunc);
     for (auto i = m.begin(); i != m.end(); ++i)
     {
-        f << i->first;
-        for (size_t j = 0; j < i->second.size(); j++)
+        if (all || i->second.size() > 1)
         {
-            f << " { " << i->second[j]->evenKey << ", " << i->second[j]->a << ", " << i->second[j]->b << " }";
+            f << i->first;
+            for (size_t j = 0; j < i->second.size(); j++)
+            {
+                f << " { " << i->second[j]->evenKey << ", " << i->second[j]->a << ", " << i->second[j]->b << " }";
+            }
+            f << std::endl;
         }
-        f << std::endl;
     }
     f.close();
 }
 
 void MSKContainer::Load(std::vector<std::string> paths)
 {
-    std::string line, oddK, evenK, a,b;
+    std::string line,smin,smax, soddK, sevenK, sa, sb;
+    mpz_class oddKey, evenKey, a, b;
     for (size_t p = 0; p < paths.size(); p++)
     {
         std::ifstream file;
         file.open(paths[p], std::ios::in);
 
+        size_t f = 0;
+        size_t ini = 0;
+
+        while (paths[p][f] != '-')
+        {
+            f++;
+        }
+        smin = paths[p].substr(ini, f-ini);
+        f++;
+        ini = f;
+        while (paths[p][f] != '.')
+        {
+            f++;
+        }
+        smax = paths[p].substr(ini, f-ini);
+        if (std::stoul(smin) < min)
+            min = std::stol(smin);
+        if (std::stoul(smax) > max)
+            max = std::stol(smax);
         while (getline(file, line))
         {
-            size_t f = 0;
+            f = 0;
             while (line[f] != ' ')
             {
                 f++;
             }
-            oddK = line.substr(0, f);
+            soddK = line.substr(0, f);
+            oddKey = soddK;
             for (size_t i = f; i < line.size(); i++)
             {
                 f = i;
@@ -61,18 +85,22 @@ void MSKContainer::Load(std::vector<std::string> paths)
                     f = i;
                     while (line[f] != ',')
                         f++;
-                    evenK = line.substr(i, f-i);
+                    sevenK = line.substr(i, f-i);
+                    evenKey = sevenK;
                     f += 2;
                     i = f;
                     while (line[f] != ',')
                         f++;
-                    a = line.substr(i, f-i);
+                    sa = line.substr(i, f-i);
+                    a = sa;
                     f += 2;
                     i = f;
                     while (line[f] != ' ')
                         f++;
-                    b = line.substr(i, f-i);
-                    std::cout << oddK << " " << evenK << " " << a << " " << b << std::endl;
+                    sb = line.substr(i, f-i);
+                    b = sb;
+                    //std::cout << soddK << " " << sevenK << " " << sa << " " << sb << std::endl;
+                    m[oddKey].push_back(new Info(evenKey, a, b));
                 }
             }
         }

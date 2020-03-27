@@ -17,7 +17,6 @@ int main(int argc, char **argv)
 		std::cout << "Argument " << i - 1 << ": " << argv[i] << std::endl;
 	}
 	auto t1 = Clock::now();
-	double duration;
 
 	if (argc > 1)
 	{
@@ -33,12 +32,14 @@ int main(int argc, char **argv)
 
 		std::vector<std::thread> threads;
 
-		
+		std::vector<std::string> paths;
 		threads.push_back(std::thread(MemoizedSearch, init, init + module + remainder, 0));
-		init+=module+remainder;
+		paths.push_back(std::to_string(init) + "-" + std::to_string(init + module + remainder) + ".txt");
+		init += module + remainder;
 		for (int i =1 ; i < threadToSpawn; i++)
 		{
 			threads.push_back(std::thread(MemoizedSearch, init, init + module, i));
+			paths.push_back(std::to_string(init) + "-" + std::to_string(init + module) + ".txt");
 			init += module;
 		}
 		std::cout << "All " << threadToSpawn << " threads have been initialized."<<std::endl;
@@ -47,17 +48,22 @@ int main(int argc, char **argv)
 			threads[i].join();
 		}
 		std::cout << "All " << threadToSpawn << " threads have finished."<<std::endl;
+		MSKContainer c;
+		c.Load(paths);
+		c.Save();
 	}
 	else
 	{
-		MemoizedSearch(0, 1000000, 0);
-		/*MSKContainer c;
+		MemoizedSearch(0, 1000, 0);
+		MSKContainer c;
 		std::vector<std::string> paths;
 		paths.push_back("0-1000.txt");
-		c.Load(paths);*/
+		c.Load(paths);
+		c.Save(false);
 	}
 	auto t2 = Clock::now();
 	std::cout << "Delta t2-t1: "
 			  << std::chrono::duration_cast<std::chrono::nanoseconds>(t2 - t1).count() / 1000000000
 			  << " seconds" << std::endl;
+
 }
