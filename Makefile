@@ -1,26 +1,16 @@
-CC		:= g++
-C_FLAGS := -std=c++17 -Wall -Wextra -g
-
-BIN		:= bin
-SRC		:= src
-INCLUDE	:= include
-LIB		:= lib
-
-LIBRARIES	:= -lgmpxx -lgmp
-
 ifeq ($(OS),Windows_NT)
 EXECUTABLE	:= main.exe
 else
 EXECUTABLE	:= main
 endif
 
-all: $(BIN)/$(EXECUTABLE)
+all: bin/$(EXECUTABLE)
 
 clean:
-	$(RM) $(BIN)/$(EXECUTABLE)
+	$(RM) bin/$(EXECUTABLE)
 
 run: all
-	./$(BIN)/$(EXECUTABLE)
+	./bin/$(EXECUTABLE)
 
-$(BIN)/$(EXECUTABLE): $(SRC)/*.cpp
-	$(CC) $(C_FLAGS) -pthread -I$(INCLUDE) -L$(LIB) $^ -o $@ $(LIBRARIES)
+bin/$(EXECUTABLE): src/*.cpp
+	g++ src/*.cpp -std=c++17 -Wall -Wextra -g -pthread -Iinclude -Llib -o "bin/$(EXECUTABLE)" -O0 -lgmpxx -lgmp
