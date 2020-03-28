@@ -6,6 +6,7 @@
 typedef std::chrono::high_resolution_clock Clock;
 #include "../include/SearchAlg.h"
 #include "../include/MSKContainer.h"
+#include "../include/Merger.h"
 
 std::vector<std::string> Search(uint64_t min, uint64_t max, int threadToSpawn)
 {
@@ -136,9 +137,10 @@ int main()
 			}
 			if (opt == "n" || opt == "N")
 				clean = false;
-			MSKContainer c;
-			c.Load(paths,clean);
-			c.Save();
+			Merge(paths, std::to_string(min) + "-" + std::to_string(max) + ".txt");
+			/*MSKContainer c;
+			c.Load(paths, clean);
+			c.Save();*/
 		}
 	}
 	else if(opt=="2")

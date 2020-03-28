@@ -9,7 +9,6 @@
 
 #include "MSKey.h"
 #include "EvenKey.h"
-#include "FileManager.h"
 #include "StringMan.h"
 
 class MSKContainer
