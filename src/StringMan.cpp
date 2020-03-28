@@ -20,9 +20,7 @@ mpz_class NextNumber(std::string s, size_t &pos)
     mpz_class res;
     if (initPos < pos)
     {
-        std::cout << s.substr(initPos, pos-initPos) << std::endl;
         res = s.substr(initPos, pos - initPos);
-        std::cout << res << std::endl;
     }
     return res;
 }
