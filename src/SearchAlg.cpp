@@ -3,7 +3,6 @@
 
 void MemoizedSearch(uint64_t min, uint64_t max, int thNumber)
 {
-
     std::cout << "Thread " << thNumber << " has started with min="<<min<<" and max="<<max << std::endl;
     int percentage;
     percentage = -1;

@@ -10,108 +10,103 @@ MSKContainer::~MSKContainer()
     {
         for (size_t j = 0; j < i->second.size(); j++)
         {
-            delete i->second[j];
+            //delete i->second[j];
         }
     }
 }
 
 void MSKContainer::Insert(const mpz_class &oddKey, const mpz_class &evenKey, const mpz_class &a, const mpz_class &b)
 {
-    m[oddKey].push_back(new Info(evenKey, a, b));
+    m[oddKey].push_back(EvenKey(evenKey, a, b));
 }
 
-void MSKContainer::Save() const
+void MSKContainer::Save(bool clean) const
 {
     std::ofstream f;
     f.open(std::to_string(min) + "-" + std::to_string(max) + ".txt", std::ios::trunc);
     for (auto i = m.begin(); i != m.end(); ++i)
     {
-        f << i->first;
-        for (size_t j = 0; j < i->second.size(); j++)
+        if (!clean || i->second.size() > 1)
         {
-            f << " { " << i->second[j]->evenKey << ", " << i->second[j]->a << ", " << i->second[j]->b << " }";
+            MSKey msk(i->first,i->second);
+            /*for (size_t j = 0; j < i->second.size(); j++)
+            {
+                msk.evenKeys.push_back(*(i->second[j]));
+            }*/
+            f << msk.ToString()<<std::endl;
         }
-        f << std::endl;
     }
     f.close();
 }
 
 void MSKContainer::Load(std::vector<std::string> paths, bool clean)
 {
-    std::string line,smin,smax, soddK, sevenK, sa, sb;
-    mpz_class oddKey, evenKey, a, b;
-    for (size_t p = 0; p < paths.size(); p++)
+    size_t pos = 0;
+    for (size_t i = 0; i < paths.size(); i++)
+    {
+        pos = 0;
+        uint64_t tmpMin, tmpMax;
+        tmpMin = NextNumber(paths[i], pos).get_ui();
+        tmpMax = NextNumber(paths[i], pos).get_ui();
+        if (tmpMin < min)
+            min = tmpMin;
+        if (tmpMax > max)
+            max = tmpMax;
+    }
+
+    MSKey msk;
+    std::string line="";
+    for (size_t i = 0; i < paths.size(); i++)
     {
         std::ifstream file;
-        file.open(paths[p], std::ios::in);
-
-        size_t f = 0;
-        size_t ini = 0;
-
-        while (paths[p][f] != '-')
+        file.open(paths[i], std::ios::in);
+        while (getline(file,line))
         {
-            f++;
-        }
-        smin = paths[p].substr(ini, f-ini);
-        f++;
-        ini = f;
-        while (paths[p][f] != '.')
-        {
-            f++;
-        }
-        smax = paths[p].substr(ini, f-ini);
-        if (std::stoul(smin) < min)
-            min = std::stol(smin);
-        if (std::stoul(smax) > max)
-            max = std::stol(smax);
-        while (getline(file, line))
-        {
-            f = 0;
-            while (line[f] != ' ')
+            msk.FromString(line);
+            for (size_t j = 0; j < msk.evenKeys.size(); j++)
             {
-                f++;
-            }
-            soddK = line.substr(0, f);
-            oddKey = soddK;
-            for (size_t i = f; i < line.size(); i++)
-            {
-                f = i;
-                if(line[i]=='{')
-                {
-                    i+=2;
-                    f = i;
-                    while (line[f] != ',')
-                        f++;
-                    sevenK = line.substr(i, f-i);
-                    evenKey = sevenK;
-                    f += 2;
-                    i = f;
-                    while (line[f] != ',')
-                        f++;
-                    sa = line.substr(i, f-i);
-                    a = sa;
-                    f += 2;
-                    i = f;
-                    while (line[f] != ' ')
-                        f++;
-                    sb = line.substr(i, f-i);
-                    b = sb;
-                    //std::cout << soddK << " " << sevenK << " " << sa << " " << sb << std::endl;
-                    m[oddKey].push_back(new Info(evenKey, a, b));
-                }
+                m[msk.oddKey].push_back(msk.evenKeys[j]);
             }
         }
         file.close();
-        if(clean)
-            std::remove(paths[p].c_str());
+        if (clean)
+            std::remove(paths[i].c_str());
     }
-    
-    
 }
-
-MSKContainer::Info::Info(const mpz_class &evenKey, const mpz_class &a, const mpz_class &b)
+/*
+void MSKContainer::Merge(std::vector<std::string> paths, bool cleanOldFile, bool cleanResult) const
 {
-    this->evenKey = evenKey;
-    this->a=a;
-    this->b=b;
+
+    size_t pos = 0;
+    mpz_class min = this->min, max = this->max;
+    std::vector<std::ifstream> files(paths.size());
+    for (size_t i = 0; i < paths.size(); i++)
+    {
+        pos = 0;
+        files[i].open(paths[i], std::ios::in);
+        mpz_class tmpMin, tmpMax;
+        tmpMin = ExtractNextNumber(paths[i], pos);
+        tmpMax = ExtractNextNumber(paths[i], pos);
+        if (tmpMin < min)
+            min = tmpMin;
+        if (tmpMax > max)
+            max = tmpMax;
+    }
+    std::ofstream resFile;
+    resFile.open(min.get_str() + "-" + max.get_str() + ".txt");
+
+    std::vector<std::string> lines(files.size());
+    std::vector<LineObj> currentLines(lines.size());
+    for (size_t i = 0; i < files.size(); i++)
+    {
+        files[i]>>lines[i];
+        currentLines[i] = LineObj::FromString(lines[i]);
+    }
+
+    do
+    {
+            
+    } while (lines.size() > 0);
+   
 }
+ */

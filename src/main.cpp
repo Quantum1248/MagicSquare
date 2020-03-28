@@ -7,13 +7,41 @@ typedef std::chrono::high_resolution_clock Clock;
 #include "../include/SearchAlg.h"
 #include "../include/MSKContainer.h"
 
-bool is_number(const std::string &s)
+std::vector<std::string> Search(uint64_t min, uint64_t max, int threadToSpawn)
 {
-	return std::find_if(s.begin(),
-								s.end(), [](unsigned char c) { return !std::isdigit(c); }) == s.end();
+	std::cout << "Searching from " << min << " to " << max << ", " << max - min << " numbers in total, with " << threadToSpawn << " threads." << std::endl;
+	uint64_t init = min;
+	uint64_t module = (max - min) / threadToSpawn;
+	uint64_t remainder = (max - min) % threadToSpawn;
+	std::cout << "The first thread will check " << module + remainder << " number, while the others " << module << " numbers each for a total of "
+			  << remainder + module * threadToSpawn << " numbers." << std::endl;
+
+	auto t1 = Clock::now();
+	std::vector<std::thread> threads;
+
+	std::vector<std::string> paths;
+	threads.push_back(std::thread(MemoizedSearch, init, init + module + remainder, 0));
+	paths.push_back(std::to_string(init) + "-" + std::to_string(init + module + remainder) + ".txt");
+	init += module + remainder;
+	for (int i = 1; i < threadToSpawn; i++)
+	{
+		threads.push_back(std::thread(MemoizedSearch, init, init + module, i));
+		paths.push_back(std::to_string(init) + "-" + std::to_string(init + module) + ".txt");
+		init += module;
+	}
+	std::cout << "All " << threadToSpawn << " threads have been initialized." << std::endl;
+	for (size_t i = 0; i < threads.size(); i++)
+	{
+		threads[i].join();
+	}
+	auto t2 = Clock::now();
+	std::cout << "All " << threadToSpawn << " threads have finished in "
+			  << std::chrono::duration_cast<std::chrono::nanoseconds>(t2 - t1).count() / 1000000000
+			  << " seconds." << std::endl;
+	return paths;
 }
 
-int main(int argc, char **argv)
+int main()
 {
 	std::string opt = "";
 	while (opt != "1" && opt != "2")
@@ -64,35 +92,26 @@ int main(int argc, char **argv)
 		if (opt != "")
 			max = std::strtoul(opt.c_str(), nullptr, 10);
 
-		std::cout << "Searching from " << min << " to " << max << ", " << max - min << " numbers in total, with " << threadToSpawn << " threads." << std::endl;
-		uint64_t init = min;
-		uint64_t module = (max - min) / threadToSpawn;
-		uint64_t remainder = (max - min) % threadToSpawn;
-		std::cout << "The first thread will check " << module + remainder << " number, while the others " << module << " numbers each for a total of "
-				  << remainder + module * threadToSpawn << " numbers." << std::endl;
-
-		auto t1 = Clock::now();
-		std::vector<std::thread> threads;
-
+		uint64_t modulo = 10000000;
+		uint64_t i = min;
 		std::vector<std::string> paths;
-		threads.push_back(std::thread(MemoizedSearch, init, init + module + remainder, 0));
-		paths.push_back(std::to_string(init) + "-" + std::to_string(init + module + remainder) + ".txt");
-		init += module + remainder;
-		for (int i = 1; i < threadToSpawn; i++)
+		std::vector<std::string> pathsTmp;
+		while (i + modulo < max)
 		{
-			threads.push_back(std::thread(MemoizedSearch, init, init + module, i));
-			paths.push_back(std::to_string(init) + "-" + std::to_string(init + module) + ".txt");
-			init += module;
+			pathsTmp=Search(i, i + modulo, threadToSpawn);
+			for (size_t j = 0; j < pathsTmp.size(); j++)
+			{
+				paths.push_back(pathsTmp[j]);
+			}
+			i += modulo;
 		}
-		std::cout << "All " << threadToSpawn << " threads have been initialized." << std::endl;
-		for (size_t i = 0; i < threads.size(); i++)
+		pathsTmp = Search(i, max, threadToSpawn);
+		for (size_t j = 0; j < pathsTmp.size(); j++)
 		{
-			threads[i].join();
+			paths.push_back(pathsTmp[j]);
 		}
-		auto t2 = Clock::now();
-		std::cout << "All " << threadToSpawn << " threads have finished in "
-		<< std::chrono::duration_cast<std::chrono::nanoseconds>(t2 - t1).count() / 1000000000
-		<< " seconds." << std::endl;
+		
+
 		std::cout << "Vuoi accorpare i risultati?(S/n)" << std::endl;
 		bool acc = true;
 		opt = "";
@@ -121,5 +140,9 @@ int main(int argc, char **argv)
 			c.Load(paths,clean);
 			c.Save();
 		}
+	}
+	else if(opt=="2")
+	{
+
 	}
 }

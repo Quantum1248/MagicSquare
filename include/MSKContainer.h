@@ -7,6 +7,11 @@
 #include <gmp.h>
 #include <gmpxx.h>
 
+#include "MSKey.h"
+#include "EvenKey.h"
+#include "FileManager.h"
+#include "StringMan.h"
+
 class MSKContainer
 {
     public:
@@ -18,19 +23,10 @@ class MSKContainer
 
         const mpz_class &Get(mpz_class oddKey) const;
 
-        void Save() const;
-        void Load(std::vector<std::string> path, bool clean = false);
-
+        void Save(bool clean=false) const;
+        void Load(std::vector<std::string> paths, bool clean = false);
     private:
-        class Info
-        {
-        public:
-            Info(const mpz_class &evenKey = 0, const mpz_class &a = 0, const mpz_class &b = 0);
-            mpz_class evenKey;
-            mpz_class a;
-            mpz_class b;
-        };
-        std::map<mpz_class, std::vector<Info *>> m;
+        std::map<mpz_class, std::vector<EvenKey>> m;
         uint64_t min, max;
 };
 
