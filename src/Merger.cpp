@@ -1,66 +1,61 @@
 #include "../include/Merger.h"
 
-void Merge(std::vector<std::string> paths, std::string resPath)
+void Merge(std::vector<std::string> paths, std::string resPath, bool clean)
 {
-    size_t pos = 0;
-    mpz_class minN = 0, maxN = 0;
-    std::vector<std::ifstream*> files(paths.size());
+    std::vector<std::ifstream *> files(paths.size());
     for (size_t i = 0; i < paths.size(); i++)
     {
-        pos = 0;
         files[i] = new std::ifstream();
         (*files[i]).open(paths[i], std::ios::in);
-        mpz_class tmpMin, tmpMax;
-        tmpMin = NextNumber(paths[i], pos);
-        tmpMax = NextNumber(paths[i], pos);
-        if (tmpMin < minN)
-            minN = tmpMin;
-        if (tmpMax > maxN)
-            maxN = tmpMax;
+        if(!(*files[i]).is_open())
+            std::cout << "Failed to open input file." << std::endl;
     }
+
     std::ofstream resFile;
-    resFile.open(minN.get_str() + "-" + maxN.get_str() + ".txt");
+    resFile.open(resPath, std::ios::trunc);
+    if(!resFile.is_open())
+        std::cout << "Failed to open output file." << std::endl;
 
     std::vector<std::string> lines(files.size());
     std::vector<MSKey> MSKeys(lines.size());
     for (size_t i = 0; i < files.size();)
     {
-        getline(*files[i], lines[i]);
-        if (lines[i] == "")
+        if (getline(*files[i], lines[i]))
+        {
+            MSKeys[i].FromString(lines[i]);
+            i++;
+        }
+        else
         {
             (*files[i]).close();
             delete files[i];
             files[i] = files[files.size() - 1];
             files.resize(files.size() - 1);
+            if (clean)
+                std::remove(paths[i].c_str());
+            paths[i] = paths[paths.size() - 1];
+            paths.resize(paths.size() - 1);
 
             MSKeys[i] = MSKeys[MSKeys.size() - 1];
             MSKeys.resize(MSKeys.size() - 1);
         }
-        else
-        {
-            MSKeys[i].FromString(lines[i]);
-            i++;
-        }
     }
 
     mpz_class min;
-    size_t minIndex = 0;
-   
+
     while (MSKeys.size() > 0)
     {
         MSKey res;
         min = MSKeys[0].oddKey;
-        minIndex = 0;
         for (size_t i = 0; i < MSKeys.size(); i++)
         {
             if (MSKeys[i].oddKey < min)
             {
                 min = MSKeys[i].oddKey;
-                minIndex = i;
             }
         }
         res.oddKey = min;
-        for (size_t i = 0; i < MSKeys.size(); )
+        for (size_t i = 0; i < MSKeys.size();)
         {
             if (MSKeys[i].oddKey == min)
             {
@@ -76,6 +71,11 @@ void Merge(std::vector<std::string> paths, std::string resPath)
                     delete files[i];
                     files[i] = files[files.size() - 1];
                     files.resize(files.size() - 1);
+
+                    if (clean)
+                        std::remove(paths[i].c_str());
+                    paths[i] = paths[paths.size() - 1];
+                    paths.resize(paths.size() - 1);
 
                     MSKeys[i] = MSKeys[MSKeys.size() - 1];
                     MSKeys.resize(MSKeys.size() - 1);

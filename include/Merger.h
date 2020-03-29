@@ -12,6 +12,8 @@
 #include "StringMan.h"
 
 
-void Merge(std::vector<std::string> paths, std::string resPath);
+void Merge(std::vector<std::string> paths, std::string resPath, bool clean);
+
+std::string SubMerge(std::vector<std::string> paths, std::string resPath, bool clean);
 
 #endif

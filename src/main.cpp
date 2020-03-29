@@ -93,10 +93,14 @@ int main()
 		if (opt != "")
 			max = std::strtoul(opt.c_str(), nullptr, 10);
 
-		uint64_t modulo = 10000000;
+		uint64_t modulo = 50000000;
 		uint64_t i = min;
 		std::vector<std::string> paths;
 		std::vector<std::string> pathsTmp;
+
+
+
+		auto t1 = Clock::now();
 		while (i + modulo < max)
 		{
 			pathsTmp=Search(i, i + modulo, threadToSpawn);
@@ -111,6 +115,12 @@ int main()
 		{
 			paths.push_back(pathsTmp[j]);
 		}
+
+		auto t2 = Clock::now();
+		std::cout << "Work finished in "
+				  << std::chrono::duration_cast<std::chrono::nanoseconds>(t2 - t1).count() / 1000000000
+				  << " seconds." << std::endl;
+		
 		
 
 		std::cout << "Vuoi accorpare i risultati?(S/n)" << std::endl;
@@ -137,7 +147,29 @@ int main()
 			}
 			if (opt == "n" || opt == "N")
 				clean = false;
-			Merge(paths, std::to_string(min) + "-" + std::to_string(max) + ".txt");
+			
+			size_t pos = 0;
+			mpz_class minN = NextNumber(paths[0], pos), maxN = NextNumber(paths[0], pos);
+			for (size_t i = 0; i < paths.size(); i++)
+			{
+				pos = 0;
+				mpz_class tmpMin, tmpMax;
+				tmpMin = NextNumber(paths[i], pos);
+				tmpMax = NextNumber(paths[i], pos);
+				if (tmpMin < minN)
+					minN = tmpMin;
+				if (tmpMax > maxN)
+					maxN = tmpMax;
+			}
+
+			std::string resPath = minN.get_str() + "-" + maxN.get_str() + ".txt";
+			std::cout << "Merging files in " << resPath << std::endl;
+			t1 = Clock::now();
+			Merge(paths, resPath, clean);
+			t2 = Clock::now();
+			std::cout << "All files merged in "
+					  << std::chrono::duration_cast<std::chrono::nanoseconds>(t2 - t1).count() / 1000000000
+					  << " seconds." << std::endl;
 			/*MSKContainer c;
 			c.Load(paths, clean);
 			c.Save();*/
@@ -145,6 +177,6 @@ int main()
 	}
 	else if(opt=="2")
 	{
-
+		
 	}
 }
