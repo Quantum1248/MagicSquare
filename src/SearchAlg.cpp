@@ -35,41 +35,4 @@ void MemoizedSearch(uint64_t min, uint64_t max, int thNumber)
     container.Save();
 
     std::cout<< "Thread " << thNumber << " has finished!" << std::endl;
-    /*
-    std::cout << "Ricerca quadrati con " << counter << " numeri:" << std::endl;
-    uint64_t checkCounter = 0;
-    percentage = -1;
-    for (auto i = m.begin(); i != m.end(); ++i)
-    {
-        std::vector<mpz_class> cent;
-        memoizedCenter(i->first, i->second, cent);
-        reverseCenter(cent);
-        mpz_class c = i->first * i->second;
-        for (auto it1 = cent.begin(); it1 != cent.end(); it1 += 2)
-        {
-            mpz_class in = c / (*it1);
-            in -= (*it1);
-            in += 1;
-            for (auto it2 = it1 + 2; it2 != cent.end(); it2 += 2)
-            {
-                mpz_class fn = c / (*it2);
-                fn += (*it2);
-                fn -= 1;
-
-                mpz_class D = ((in-2) +1) * ((in-2) - 1 + 2); //(in-2+1)*(in-2-1+2)
-                D /= 4;
-                mpz_class e = (fn + in) * (fn - in + 2);
-                e /= 4;
-                check(D, e, c);
-            }
-        }
-
-        checkCounter++;
-        if ((int)((checkCounter * 100) / counter) > percentage)
-        {
-            percentage = (int)((checkCounter*100)/counter);
-            std::cout << percentage << "%" << std::endl;
-        }
-    }
-    */
 }

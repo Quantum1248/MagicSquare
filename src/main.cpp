@@ -7,6 +7,7 @@ typedef std::chrono::high_resolution_clock Clock;
 #include "../include/SearchAlg.h"
 #include "../include/MSKContainer.h"
 #include "../include/Merger.h"
+#include "../include/Tester.h"
 
 std::vector<std::string> Search(uint64_t min, uint64_t max, int threadToSpawn)
 {
@@ -45,11 +46,12 @@ std::vector<std::string> Search(uint64_t min, uint64_t max, int threadToSpawn)
 int main()
 {
 	std::string opt = "";
-	while (opt != "1" && opt != "2")
+	while (opt != "1" && opt != "2" && opt!="3")
 	{
 		std::cout << "Cosa vuoi fare(1/2)?" << std::endl
 				  << "1 -Genera nuovi risultati." << std::endl
-				  << "2 -Compatta risultati." << std::endl;
+				  << "2 -Test risultati." << std::endl
+				  << "3 -Accorpa risultati." << std::endl;
 		std::cin >> opt;
 		if(opt!="1" && opt!="2")
 			std::cout << "Sbagliato." << std::endl;
@@ -170,13 +172,24 @@ int main()
 			std::cout << "All files merged in "
 					  << std::chrono::duration_cast<std::chrono::nanoseconds>(t2 - t1).count() / 1000000000
 					  << " seconds." << std::endl;
-			/*MSKContainer c;
-			c.Load(paths, clean);
-			c.Save();*/
 		}
 	}
 	else if(opt=="2")
 	{
-		
+		std::string nomeFile="res.txt";
+		test(nomeFile);
+	}
+	else if(opt=="3")
+	{
+		std::cout << "Merging files in " << "res.txt" << std::endl;
+		auto t1 = Clock::now();
+		std::vector<std::string> paths;
+		paths.push_back("0-1.txt");
+		paths.push_back("1-2.txt");
+		Merge(paths, "res.txt", false);
+		auto t2 = Clock::now();
+		std::cout << "All files merged in "
+				  << std::chrono::duration_cast<std::chrono::nanoseconds>(t2 - t1).count() / 1000000000
+				  << " seconds." << std::endl;
 	}
 }

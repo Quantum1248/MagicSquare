@@ -25,6 +25,70 @@ MSKey::~MSKey()
 {
 }
 
+void MSKey::Normalize()
+{
+    //per il momento non riduco le potenze simili
+    for (size_t i = 0; i < evenKeys.size(); i++)
+    {
+        oddKey *= evenKeys[i].evenKey;
+        mpz_class root = sqrt(evenKeys[i].evenKey);
+        evenKeys[i].evenKey = 1;
+
+        for (size_t j = 0; j < evenKeys.size(); j++)
+        {
+            if(j!=i)
+            {
+                evenKeys[j].a *= root;
+                evenKeys[j].b *= root;
+            }
+        }       
+    }
+
+    //faccio diventare tutti gli a e b pari
+    for (size_t i = 0; i < evenKeys.size(); i++)
+    {
+        if(evenKeys[i].a%2==1 || evenKeys[i].b%2==1)
+        {
+            oddKey *= 4;
+            for (size_t j = 0; j < evenKeys.size(); j++)
+            {
+                evenKeys[j].a *= 2;
+                evenKeys[j].b *= 2;
+            }
+        }
+    }
+    /*
+    std::cout << "Chiavi non ordinate:" << std::endl;
+    for (size_t i = 0; i < evenKeys.size(); i++)
+    {
+        std::cout << evenKeys[i].ToString() << std::endl;
+    }
+    std::cout << std::endl;*/
+    //le ordino dalla a più grande alla più piccola
+    if (oddKey.get_str() == "1069543851264000")
+        oddKey = oddKey;
+    for (size_t i = 0; i < evenKeys.size(); i++)
+    {
+        EvenKey tmp = evenKeys[i];
+        for (size_t j = i; j < evenKeys.size(); j++)
+        {
+            if (evenKeys[j].a > tmp.a)
+            {
+                evenKeys[i] = evenKeys[j];
+                evenKeys[j] = tmp;
+                tmp = evenKeys[i];
+            }
+        }
+    }
+        /*
+    std::cout << "Chiavi ordinate:" << std::endl;
+    for (size_t i = 0; i < evenKeys.size(); i++)
+    {
+        std::cout << evenKeys[i].ToString() << std::endl;
+    }
+    std::cout << "----------" << std::endl;*/
+}
+
 std::string MSKey::ToString() const
 {
     std::string str = oddKey.get_str();

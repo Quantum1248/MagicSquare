@@ -17,6 +17,8 @@ public:
     MSKey(const mpz_class &oddKey,const std::vector<EvenKey>& evenKeys);
     ~MSKey();
 
+    void Normalize();
+
     std::string ToString() const;
     void FromString(const std::string &s);
 
