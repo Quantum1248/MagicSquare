@@ -95,7 +95,7 @@ int main()
 		if (opt != "")
 			max = std::strtoul(opt.c_str(), nullptr, 10);
 
-		uint64_t modulo = 50000000;
+		uint64_t modulo = 20000000;
 		uint64_t i = min;
 		std::vector<std::string> paths;
 		std::vector<std::string> pathsTmp;
@@ -158,13 +158,14 @@ int main()
 				mpz_class tmpMin, tmpMax;
 				tmpMin = NextNumber(paths[i], pos);
 				tmpMax = NextNumber(paths[i], pos);
+				paths[i] = "/run/media/manuel/29703f9d-5247-4b9b-8a98-bc007a395130/" + paths[i];
 				if (tmpMin < minN)
 					minN = tmpMin;
 				if (tmpMax > maxN)
 					maxN = tmpMax;
 			}
 
-			std::string resPath = minN.get_str() + "-" + maxN.get_str() + ".txt";
+			std::string resPath = "/run/media/manuel/29703f9d-5247-4b9b-8a98-bc007a395130/" + minN.get_str() + "-" + maxN.get_str() + ".txt";
 			std::cout << "Merging files in " << resPath << std::endl;
 			t1 = Clock::now();
 			Merge(paths, resPath, clean);
@@ -176,7 +177,7 @@ int main()
 	}
 	else if(opt=="2")
 	{
-		std::string nomeFile="res.txt";
+		std::string nomeFile = "/run/media/manuel/29703f9d-5247-4b9b-8a98-bc007a395130/resfin.txt";
 		test(nomeFile);
 	}
 	else if(opt=="3")
@@ -184,9 +185,12 @@ int main()
 		std::cout << "Merging files in " << "res.txt" << std::endl;
 		auto t1 = Clock::now();
 		std::vector<std::string> paths;
-		paths.push_back("0-1.txt");
-		paths.push_back("1-2.txt");
-		Merge(paths, "res.txt", false);
+		std::string base = "/run/media/manuel/29703f9d-5247-4b9b-8a98-bc007a395130/";
+		paths.push_back(base + "0-4.txt");
+		paths.push_back(base + "4-4,5.txt");
+		paths.push_back(base + "4,5-5.txt");
+		paths.push_back(base + "5-6.txt");
+		Merge(paths, base+"resfin.txt", false);
 		auto t2 = Clock::now();
 		std::cout << "All files merged in "
 				  << std::chrono::duration_cast<std::chrono::nanoseconds>(t2 - t1).count() / 1000000000

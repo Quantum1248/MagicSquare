@@ -23,7 +23,7 @@ void MSKContainer::Insert(const mpz_class &oddKey, const mpz_class &evenKey, con
 void MSKContainer::Save(bool clean) const
 {
     std::ofstream f;
-    f.open(std::to_string(min) + "-" + std::to_string(max) + ".txt", std::ios::trunc);
+    f.open("/run/media/manuel/29703f9d-5247-4b9b-8a98-bc007a395130/"+std::to_string(min) + "-" + std::to_string(max) + ".txt", std::ios::trunc);
     for (auto i = m.begin(); i != m.end(); ++i)
     {
         if (!clean || i->second.size() > 1)

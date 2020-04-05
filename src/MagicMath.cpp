@@ -80,9 +80,6 @@ void FindOddFirmTris(mpz_class n1, mpz_class n2, mpz_class n3, mpz_class n4, mpz
         n3 /= 2;
         n4 /= 2;
     }
-    mpz_class g = gcd(n3, n4);
-    if(g!=1)
-        g = g;
     FindOddFirm(n3);
     FindOddFirm(n4);
     res = n1 * n2 * n3 * n4;
