@@ -9,7 +9,7 @@ void MemoizedSearch(uint64_t min, uint64_t max, int thNumber)
     
     MSKContainer container(min,max);
     mpz_class a = 0, b = 0, apb = 0, amb = 0, n = 0, oddKey = 0, evenKey = 0;
-    for (uint64_t i = min; i < max; i++)
+    for (uint64_t i = min; i < max; i++)    //min parte da 0, non da 1
     {
         CoprimePair(i, a, b);
         apb = a + b;

@@ -65,8 +65,7 @@ void MSKey::Normalize()
     }
     std::cout << std::endl;*/
     //le ordino dalla a più grande alla più piccola
-    if (oddKey.get_str() == "1069543851264000")
-        oddKey = oddKey;
+
     for (size_t i = 0; i < evenKeys.size(); i++)
     {
         EvenKey tmp = evenKeys[i];

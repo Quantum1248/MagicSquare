@@ -128,9 +128,10 @@ int main()
 		std::cout << "Vuoi accorpare i risultati?(S/n)" << std::endl;
 		bool acc = true;
 		opt = "";
-		std::cin >> opt;
-		while (opt != "s" && opt!="n" && opt!="S"&&opt!="N"&&opt!="")
-		{
+		//std::cin >> opt;
+        opt = "s";
+        while (opt != "s" && opt != "n" && opt != "S" && opt != "N" && opt != "")
+        {
 			std::cout << "Digita s o n." << std::endl;
 			std::cin >> opt;
 		}
@@ -141,9 +142,10 @@ int main()
 			std::cout << "Vuoi cancellare i file dei risultati non accorpati?(S/n)" << std::endl;
 			bool clean = true;
 			opt = "";
-			std::cin >> opt;
-			while (opt != "s" && opt != "n" && opt != "S" && opt != "N" && opt != "")
-			{
+			//std::cin >> opt;
+            opt = "s";
+            while (opt != "s" && opt != "n" && opt != "S" && opt != "N" && opt != "")
+            {
 				std::cout << "Digita s o n." << std::endl;
 				std::cin >> opt;
 			}
@@ -178,7 +180,10 @@ int main()
 	else if(opt=="2")
 	{
 		std::string nomeFile = "/run/media/manuel/29703f9d-5247-4b9b-8a98-bc007a395130/resfin.txt";
+		std::cout << "Test 1..." << std::endl;
 		test(nomeFile);
+		std::cout << "Test 2..." << std::endl;
+		test2(nomeFile);
 	}
 	else if(opt=="3")
 	{
@@ -186,10 +191,9 @@ int main()
 		auto t1 = Clock::now();
 		std::vector<std::string> paths;
 		std::string base = "/run/media/manuel/29703f9d-5247-4b9b-8a98-bc007a395130/";
-		paths.push_back(base + "0-4.txt");
-		paths.push_back(base + "4-4,5.txt");
-		paths.push_back(base + "4,5-5.txt");
-		paths.push_back(base + "5-6.txt");
+		paths.push_back(base + "1.txt");
+		paths.push_back(base + "2.txt");
+		paths.push_back(base + "3.txt");
 		Merge(paths, base+"resfin.txt", false);
 		auto t2 = Clock::now();
 		std::cout << "All files merged in "
