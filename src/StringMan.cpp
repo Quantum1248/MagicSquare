@@ -6,7 +6,7 @@ bool is_number(const std::string &s)
                         s.end(), [](unsigned char c) { return !std::isdigit(c); }) == s.end();
 }
 
-mpz_class NextNumber(std::string s, size_t &pos)
+mpz_class NextNumber(const std::string& s, size_t &pos)
 {
     while (!std::isdigit(s[pos]))
     {

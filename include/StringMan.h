@@ -7,6 +7,6 @@
 #include <gmpxx.h>
 
 bool is_number(const std::string &s);
-mpz_class NextNumber(std::string s, size_t &pos);
+mpz_class NextNumber(const std::string &s, size_t &pos);
 
 #endif
