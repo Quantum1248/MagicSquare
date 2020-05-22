@@ -2,7 +2,8 @@
 
 void Merge(std::vector<std::string> paths, std::string resPath, bool clean)
 {
-    int buffSize = 67108864; //64MB
+    //int buffSize = 67108864; //64MB
+    int buffSize = (4000000); 
     std::vector<std::ifstream *> files(paths.size());
     for (size_t i = 0; i < paths.size(); i++)
     {

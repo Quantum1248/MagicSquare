@@ -182,14 +182,15 @@ int main()
 		}
 	}
 	else if(opt=="2")
-	{
-		std::string nomeFile = "/run/media/manuel/29703f9d-5247-4b9b-8a98-bc007a395130/resfin.txt";
-		std::cout << "Test 1..." << std::endl;
+    {
+        std::string nomeFile = "/run/media/manuel/MS2/0-21.txt";
+        test3(nomeFile);
+        std::cout << "Test 1..." << std::endl;
 		test(nomeFile);
 		std::cout << "Test 2..." << std::endl;
 		test2(nomeFile);
-	}
-	else if(opt=="3")
+    }
+    else if(opt=="3")
 	{
 		std::cout << "Merging files in " << "res.txt" << std::endl;
 		auto t1 = Clock::now();
@@ -201,8 +202,8 @@ int main()
         }
         std::sort(paths.begin(), paths.end());
         mpz_class beg;
-        mpz_class end = 11000000000;
-/*
+        mpz_class end = 21000000000;
+
         for (const std::string &i : paths)
         {
             std::string filename = i.substr(FILE_BASE_PATH.size(), i.size() - FILE_BASE_PATH.size());
@@ -217,7 +218,7 @@ int main()
             }
             end = NextNumber(filename, pos);
         }
-*/
+
         std::vector<std::string> cent;
         int i = 1;
         size_t fileToMerge = 100;
@@ -325,6 +326,7 @@ int main()
         std::vector<std::string> pathsTmp;
 
         auto t1 = Clock::now();
+        int64_t percentage = -1;
         while (i + modulo < max)
         {
             pathsTmp = Search(i, i + modulo, threadToSpawn);
@@ -333,6 +335,18 @@ int main()
                 paths.push_back(pathsTmp[j]);
             }
             i += modulo;
+            int64_t tmp = (((i - min) * 100) / (max - min));
+            if (tmp > percentage)
+            {
+                percentage = tmp;
+                auto t2 = Clock::now();
+                uint64_t sec = std::chrono::duration_cast<std::chrono::nanoseconds>(t2 - t1).count() / 1000000000;
+                std::cout << "Completed " << percentage << "%"
+                          << " of work in " << sec 
+                          <<" seconds." << std::endl;
+                float secondRemaining = (100 - percentage) * ((float)sec / (float)percentage);
+                std::cout << "About " << secondRemaining << " seconds remaining.\n" << std::endl;
+            }
         }
         pathsTmp = Search(i, max, threadToSpawn);
         for (size_t j = 0; j < pathsTmp.size(); j++)
